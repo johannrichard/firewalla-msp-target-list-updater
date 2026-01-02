@@ -1,4 +1,4 @@
-# firewalla-asn-target-lists
+# Firewalla ASN Target List Updater
 
 Updates Target Lists in Firewalla MSP using an ASN / the ASN from the title
 
