@@ -71,27 +71,29 @@ jobs:
 
           ### Automated Execution with Crontab
 
-          To run the script automatically, add it to your crontab. **Important**: Run no more frequently than once per hour to avoid overloading the BGP data source.
+          To run the script automatically, add it to your crontab. The script implements simple file-based caching:
+          - BGP tags / ASN prefixes (large routing table): refresh no more frequently than once per hour.
+          - ASN names metadata (asns.csv): refresh no more frequently than once every 24 hours.
+
+          Running the script hourly is acceptable because the script will only download the ASN CSV once per 24 hours, while it may refresh the BGP table hourly.
 
           ```bash
           # Edit your crontab
           crontab -e
 
-          # Add one of these lines (choose based on your needs):
+          # Example: Run hourly (script will cache ASN CSV for 24h)
+          0 * * * * cd /path/to/script && /usr/bin/node asn-updater.js >> asn-updater.log 2>&1
 
-          # Run every 6 hours at minute 0
-          0 */6 * * * cd /path/to/script && /usr/bin/node asn-updater.js >> asn-updater.log 2>&1
-
-          # Run daily at 3 AM
+          # Example: Run daily at 3 AM (if you only need daily updates)
           0 3 * * * cd /path/to/script && /usr/bin/node asn-updater.js >> asn-updater.log 2>&1
 
-          # Run every 4 hours
-          0 */4 * * * cd /path/to/script && /usr/bin/node asn-updater.js >> asn-updater.log 2>&1
+          # Example: Run every 6 hours
+          0 */6 * * * cd /path/to/script && /usr/bin/node asn-updater.js >> asn-updater.log 2>&1
           ```
 
           **Crontab format**: `minute hour day month weekday command`
-          - Minimum recommended frequency: Every 1 hour (`0 * * * *`)
-          - Use `*/4` for every 4 hours, `*/6` for every 6 hours, etc.
+          - Recommended minimum interval for BGP table: 1 hour (`0 * * * *`)
+          - Recommended minimum interval for ASN CSV: 24 hours
           - Logs are saved to `asn-updater.log` in the script directory
 
           ### Requirements
