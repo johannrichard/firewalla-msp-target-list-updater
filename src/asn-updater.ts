@@ -1,7 +1,7 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 // Load environment variables from .env file
 dotenv.config();

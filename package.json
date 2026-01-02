@@ -14,7 +14,13 @@
     "check": "biome check .",
     "check:fix": "biome check --write ."
   },
-  "keywords": ["firewalla", "asn", "bgp", "network", "security"],
+  "keywords": [
+    "firewalla",
+    "asn",
+    "bgp",
+    "network",
+    "security"
+  ],
   "author": "",
   "license": "MIT",
   "engines": {
