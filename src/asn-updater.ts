@@ -316,7 +316,10 @@ async function downloadASNsData(): Promise<Map<number, ASNMetadata> | null> {
         }
         fields.push(current.trim());
         if (fields.length >= 4) {
-          const asn = Number.parseInt(fields[0], 10);
+          // Some CSV rows prefix the ASN with "AS" (e.g. "AS10012").
+          // Strip any leading non-digit characters before parsing.
+          const asnField = fields[0].replace(/^\s*/g, '').replace(/^AS/i, '');
+          const asn = Number.parseInt(asnField, 10);
           if (!Number.isNaN(asn)) {
             asnsMap.set(asn, {
               asn,
@@ -402,7 +405,7 @@ async function downloadASNsData(): Promise<Map<number, ASNMetadata> | null> {
       fields.push(current.trim()); // Add the last field
 
       if (fields.length >= 4) {
-        const asnStr = fields[0];
+        const asnStr = fields[0].replace(/^\s*/g, '').replace(/^AS/i, '');
         const asn = Number.parseInt(asnStr, 10);
 
         if (!Number.isNaN(asn)) {
