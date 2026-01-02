@@ -1,0 +1,140 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Run linting and checks
+        run: npm run check
+      
+      - name: Build bundle
+        run: npm run build
+      
+      - name: Create release notes
+        id: release_notes
+        run: |
+          cat > RELEASE_NOTES.md << 'EOF'
+          ## Quick Start Guide
+
+          ### Download and Setup
+
+          1. Download the `asn-updater.js` bundle from the assets below
+          2. Create a `.env` file with your credentials:
+             ```bash
+             # Create .env file
+             cat > .env << 'ENVFILE'
+             MSP_DOMAIN=mydomain.firewalla.net
+             FIREWALLA_TOKEN=your-token-here
+             BGP_TOOLS_USER_AGENT=your-org bgp.tools - contact@example.com
+             ENVFILE
+             ```
+          3. Make the script executable (optional):
+             ```bash
+             chmod +x asn-updater.js
+             ```
+
+          ### Running the Script
+
+          ```bash
+          # Run once
+          node asn-updater.js
+
+          # Preview changes without updating (dry run)
+          node asn-updater.js --dry-run
+
+          # Show help
+          node asn-updater.js --help
+          ```
+
+          ### Automated Execution with Crontab
+
+          To run the script automatically, add it to your crontab. **Important**: Run no more frequently than once per hour to avoid overloading the BGP data source.
+
+          ```bash
+          # Edit your crontab
+          crontab -e
+
+          # Add one of these lines (choose based on your needs):
+
+          # Run every 6 hours at minute 0
+          0 */6 * * * cd /path/to/script && /usr/bin/node asn-updater.js >> asn-updater.log 2>&1
+
+          # Run daily at 3 AM
+          0 3 * * * cd /path/to/script && /usr/bin/node asn-updater.js >> asn-updater.log 2>&1
+
+          # Run every 4 hours
+          0 */4 * * * cd /path/to/script && /usr/bin/node asn-updater.js >> asn-updater.log 2>&1
+          ```
+
+          **Crontab format**: `minute hour day month weekday command`
+          - Minimum recommended frequency: Every 1 hour (`0 * * * *`)
+          - Use `*/4` for every 4 hours, `*/6` for every 6 hours, etc.
+          - Logs are saved to `asn-updater.log` in the script directory
+
+          ### Requirements
+
+          - Node.js 12 or higher
+          - Firewalla MSP account with API token
+          - Network access to bgp.tools and your Firewalla MSP domain
+
+          ### Environment Variables
+
+          Required in your `.env` file:
+          - `MSP_DOMAIN`: Your Firewalla MSP domain (e.g., `mydomain.firewalla.net`)
+          - `FIREWALLA_TOKEN`: Your Firewalla API personal access token
+          - `BGP_TOOLS_USER_AGENT`: User-Agent for bgp.tools API (required)
+            - Format: `"organization bgp.tools - contact@email.com"`
+            - Example: `"acmeco bgp.tools - contact@acme.co"`
+
+          ### IMPORTANT: bgp.tools Fair Use Policy
+
+          This tool uses the bgp.tools API to fetch BGP routing data. **You MUST comply with the following requirements:**
+
+          - **You MUST set a descriptive User-Agent** to identify yourself with contact information
+          - Default or generic user agents are **NOT supported** and may be blocked
+          - Preferred format: `"organization bgp.tools - contact@email.com"`
+          - Example: `"acmeco bgp.tools - contact@acme.co"`
+          - **Do NOT scrape HTML pages** - use API endpoints only
+          - Users who violate these guidelines may be banned without notice
+          - See: https://bgp.tools/kb/api
+
+          For more details, see the [README](https://github.com/${{ github.repository }}/blob/main/README.md).
+          EOF
+          
+          echo "notes_file=RELEASE_NOTES.md" >> $GITHUB_OUTPUT
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version }}
+          name: Release ${{ inputs.version }}
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+          files: |
+            dist/asn-updater.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

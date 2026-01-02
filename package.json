@@ -1,0 +1,33 @@
+{
+  "name": "firewalla-asn-target-lists",
+  "version": "1.0.0",
+  "description": "Updates Target Lists in Firewalla MSP using an ASN / the ASN from the title",
+  "main": "dist/asn-updater.js",
+  "bin": {
+    "asn-updater": "./dist/asn-updater.js"
+  },
+  "scripts": {
+    "build": "esbuild src/asn-updater.ts --bundle --platform=node --target=node12 --outfile=dist/asn-updater.js --banner:js=\"#!/usr/bin/env node\" --format=cjs",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write ."
+  },
+  "keywords": ["firewalla", "asn", "bgp", "network", "security"],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^12.20.55",
+    "esbuild": "^0.27.2",
+    "typescript": "^5.7.2"
+  }
+}
