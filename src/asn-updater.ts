@@ -273,7 +273,7 @@ async function downloadASNsData(): Promise<Map<number, ASNMetadata> | null> {
       timeout: 60000, // 60 seconds timeout
       maxContentLength: 10 * 1024 * 1024, // 10MB limit
       headers: {
-        'User-Agent': userAgent,
+        'User-Agent': `${userAgent} (firewalla-msp-target-list-updater)`,
       },
     });
 
