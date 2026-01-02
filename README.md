@@ -84,6 +84,23 @@ This tool uses the bgp.tools API to fetch BGP routing data. Please note the foll
 - Users who violate these guidelines may be banned without notice
 - See: https://bgp.tools/kb/api
 
+### Caching and Recommended Cron Schedule
+
+The tool implements a simple file-based cache stored in a `.cache` directory alongside the script. This reduces load on bgp.tools and avoids unnecessary downloads.
+
+- `.cache/bgp-table.jsonl` — BGP routing table (large); refreshed at most once per hour.
+- `.cache/asns.csv` — ASN names/metadata (small CSV); refreshed at most once every 24 hours.
+
+You can run the script hourly; the updater will only download the ASN CSV once per 24 hours while it may refresh the BGP table hourly. Example crontab entries:
+
+```bash
+# Run hourly (script caches ASN CSV for 24h)
+0 * * * * cd /path/to/script && /usr/bin/node dist/asn-updater.js >> asn-updater.log 2>&1
+
+# Run daily at 3 AM
+0 3 * * * cd /path/to/script && /usr/bin/node dist/asn-updater.js >> asn-updater.log 2>&1
+```
+
 ### Command-Line Options
 
 - `--dry-run`, `-d`: Preview changes without updating target lists
