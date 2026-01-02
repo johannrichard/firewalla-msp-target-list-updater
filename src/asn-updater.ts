@@ -747,6 +747,12 @@ async function main() {
       const prefixPromises = asns.map((asn) => fetchPrefixesForASN(asn, bgpTableData, asnsData));
       const asnInfoResults = await Promise.all(prefixPromises);
 
+      // Log ASN names from the ASNs metadata DB for verification
+      console.log('  ASN names (from ASNs DB):');
+      for (const info of asnInfoResults) {
+        console.log(`    AS${info.asn}: ${info.orgName} (${info.countryCode})`);
+      }
+
       // Combine results
       const allPrefixes: string[] = [];
       const asnMetadata: string[] = [];
